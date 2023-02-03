@@ -37,7 +37,7 @@ namespace ContactsAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddContact(AddContactRequest addcontactrequest) 
+        public async Task<IActionResult> AddContact(AddContactRequest addcontactrequest)
         {
             var contact = new Contact()
             {
@@ -60,12 +60,12 @@ namespace ContactsAPI.Controllers
         {
             var contact = await dbContext.Contacts.FindAsync(id);
 
-            if (contact != null) 
+            if (contact != null)
             {
-                contact.FullName= updatecontactrequest.FullName;
-                contact.Email= updatecontactrequest.Email;
-                contact.Phone= updatecontactrequest.Phone;
-                contact.Address= updatecontactrequest.Address;
+                contact.FullName = updatecontactrequest.FullName;
+                contact.Email = updatecontactrequest.Email;
+                contact.Phone = updatecontactrequest.Phone;
+                contact.Address = updatecontactrequest.Address;
 
                 await dbContext.SaveChangesAsync();
 
@@ -81,13 +81,29 @@ namespace ContactsAPI.Controllers
         {
             var contact = await dbContext.Contacts.FindAsync(id);
 
-            if(contact != null)
+            if (contact != null)
             {
                 dbContext.Remove(contact);
                 await dbContext.SaveChangesAsync();
                 return Ok();
             }
             return NotFound();
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Index([FromQuery]string query)
+        {
+            if (dbContext.Contacts == null)
+            {
+                return NotFound();
+            }
+            var searchString = from s in dbContext.Contacts select s;
+
+            if (!string.IsNullOrEmpty(query))
+            {
+                searchString = searchString.Where(s => s.FullName.Contains(query) || s.Email.Contains(query) || s.Phone.Contains(query) || s.Address.Contains(query));
+            }
+            return Ok(await searchString.AsNoTracking().ToListAsync());
         }
     }
 }
