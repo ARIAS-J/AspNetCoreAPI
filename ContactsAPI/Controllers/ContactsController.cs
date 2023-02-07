@@ -89,21 +89,5 @@ namespace ContactsAPI.Controllers
             }
             return NotFound();
         }
-
-        [HttpGet("search")]
-        public async Task<IActionResult> Index([FromQuery]string query)
-        {
-            if (dbContext.Contacts == null)
-            {
-                return NotFound();
-            }
-            var searchString = from s in dbContext.Contacts select s;
-
-            if (!string.IsNullOrEmpty(query))
-            {
-                searchString = searchString.Where(s => s.FullName.Contains(query) || s.Email.Contains(query) || s.Phone.Contains(query) || s.Address.Contains(query));
-            }
-            return Ok(await searchString.AsNoTracking().ToListAsync());
-        }
     }
 }
